@@ -1,3 +1,4 @@
 
 *.pyc
 TensorRT-LLM/
+app.log
