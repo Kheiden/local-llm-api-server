@@ -44,7 +44,7 @@ if not "%env_path_found%"=="" (
     @REM call "%localappdata%\NVIDIA\MiniConda\Scripts\conda.exe" env update --file C:\Users\kurtw\AppData\Local\NVIDIA\ChatWithRTX\environment.yaml
     @REM call "%localappdata%\NVIDIA\MiniConda\Scripts\conda.exe" env export > C:\Users\kurtw\AppData\Local\NVIDIA\ChatWithRTX\environment_export.yaml
     @REM call "%localappdata%\NVIDIA\MiniConda\Scripts\conda.exe" list --explicit > C:\Users\kurtw\AppData\Local\NVIDIA\ChatWithRTX\environment_export_explicit.yaml
-    python app.py
+    python main.py
     @REM pause
 ) else (
     echo Environment with 'env_nvd_rag' not found.
