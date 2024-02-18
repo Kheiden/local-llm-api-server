@@ -9,7 +9,9 @@ from backend.results import Results
 from logging.config import dictConfig
 from flask import has_request_context, request
 from flask.logging import default_handler
-# from faiss_vector_storage import FaissEmbeddingStorage
+from dotenv import load_dotenv
+
+load_dotenv()
 
 class RequestFormatter(logging.Formatter):
     def format(self, record):
@@ -54,7 +56,7 @@ app.logger.addHandler(file_handler)
 
 utils = Utils()
 results = Results()
-
+ 
 @app.route('/')
 def index():
   app.logger.info('Returning main.html')
