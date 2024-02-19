@@ -531,9 +531,31 @@ def start_api_interface():
     set_global_service_context(service_context)
 
     generate_inferance_engine(data_dir)
-    api_interface = gr.Interface(
-        fn=stream_chatbot,
-        inputs=["text", "text", "text"],
-        outputs=["text"],
-    )
-    api_interface.launch(share=False, server_name="127.0.0.1", root_path="/api", server_port=4242)
+    with gr.Blocks() as api_interface:
+        gr.Markdown(
+        """
+        # Hello World!
+        Start typing below to see the output.
+        """)
+        all_inputs = []
+        inp = gr.Textbox(label="Query", placeholder="What is your name?")
+        all_inputs.append(inp)
+        all_inputs.append(gr.Textbox(label="", placeholder=""))
+        all_inputs.append(gr.Textbox(label="Session ID",placeholder="0"))
+        out = gr.HTML(label="Output")
+        # gr.HTML
+        btn = gr.Button("Run")
+        btn.click(fn=stream_chatbot, inputs=inp, outputs=out)
+        # inp.change(stream_chatbot, inp, out)
+    # api_interface = gr.Interface(
+    #     fn=stream_chatbot,
+    #     inputs=["text", "text", "text"],
+    #     outputs=["text"],
+    # )
+    api_interface.launch(share=False, server_name="127.0.0.1", root_path="/api/query", server_port=4242)
+    # api_interface = gr.Interface(
+    #     fn=generate_inferance_engine,
+    #     inputs=["text"],
+    #     outputs=["text"],
+    # )
+    # api_interface.launch(share=False, server_name="127.0.0.1", root_path="/api/generate_embeds", server_port=4242)

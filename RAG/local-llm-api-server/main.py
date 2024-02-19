@@ -24,7 +24,7 @@ patch_source = os.path.join(os.getcwd(), 'ChatWithRTX_patch', 'app.py')
 patch_destination = os.path.join(full_module_path, 'app.py')
 shutil.copy(patch_source, patch_destination) 
 os.chdir(full_module_path)
-print('opening app...')
 import app
 # app.start_interface()
+print('Starting API interface...')
 app.start_api_interface()
