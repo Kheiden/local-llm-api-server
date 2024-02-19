@@ -23,8 +23,7 @@ shutil.copytree(dataset_source, dataset_destination, dirs_exist_ok=True)
 patch_source = os.path.join(os.getcwd(), 'ChatWithRTX_patch', 'app.py')
 patch_destination = os.path.join(full_module_path, 'app.py')
 shutil.copy(patch_source, patch_destination) 
-
-
 os.chdir(full_module_path)
 print('opening app...')
-# import app
+import app
+app.start_interface()
