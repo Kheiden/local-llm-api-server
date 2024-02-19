@@ -269,8 +269,7 @@ def chatbot(query, chat_history, session_id):
         response_txt = llm.complete(query).text
     yield response_txt
 
-
-def stream_chatbot(query, chat_history, data_dir, refresh_index, session_id):
+def stream_chatbot(query, chat_history, session_id, data_dir='dataset', refresh_index=False):
     if refresh_index and data_dir != '':
         print('regenerating index')
         generate_inferance_engine(data_dir, force_rewrite=True)
@@ -512,7 +511,6 @@ def start_interface():
     # render the interface
     interface.render()
 
-
 def start_api_interface():
     app_config, model_config = load_config()
     # create trt_llm engine object
@@ -545,11 +543,14 @@ def start_api_interface():
         all_inputs = []
         all_inputs.append(gr.Textbox(label="Query", placeholder="What is your name?"))
         all_inputs.append(gr.Textbox(label="Chat History", placeholder=""))
+        all_inputs.append(gr.Textbox(label="Session Id", placeholder="0"))
         all_inputs.append(gr.Textbox(label="Data Directory", placeholder="dataset"))
         all_inputs.append(gr.Checkbox(label="Refresh Index", value=False))
-        all_inputs.append(gr.Textbox(label="Session Id", placeholder="0"))
         out = gr.HTML(label="Output")
         btn = gr.Button("Run")
         btn.click(fn=stream_chatbot, inputs=all_inputs, outputs=out)
 
     api_interface.launch(share=False, server_name="127.0.0.1", root_path="/api", server_port=4242)
+
+if __name__ == '__main__':
+  start_interface()
