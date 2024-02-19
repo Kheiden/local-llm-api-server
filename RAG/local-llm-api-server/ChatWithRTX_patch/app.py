@@ -29,6 +29,7 @@ import json
 import logging
 import gc
 import torch
+import gradio as gr
 from pathlib import Path
 from trt_llama_api import TrtLlmAPI
 #from langchain.embeddings.huggingface import HuggingFaceEmbeddings
@@ -505,3 +506,34 @@ def start_interface():
     interface.on_regenerate_index(handle_regenerate_index)
     # render the interface
     interface.render()
+
+
+def start_api_interface():
+    app_config, model_config = load_config()
+    # create trt_llm engine object
+    llm = TrtLlmAPI(
+        model_path=model_config["model_path"],
+        engine_name=model_config["engine"],
+        tokenizer_dir=model_config["tokenizer_path"],
+        temperature=model_config["temperature"],
+        max_new_tokens=model_config["max_new_tokens"],
+        context_window=model_config["max_input_token"],
+        messages_to_prompt=messages_to_prompt,
+        completion_to_prompt=completion_to_prompt,
+        verbose=False
+    )
+
+    # create embeddings model object
+    embed_model = HuggingFaceEmbeddings(model_name=app_config['embedded_model'])
+    service_context = ServiceContext.from_defaults(llm=llm, embed_model=embed_model,
+                                                context_window=model_config["max_input_token"], chunk_size=512,
+                                                chunk_overlap=200)
+    set_global_service_context(service_context)
+
+    generate_inferance_engine(data_dir)
+    api_interface = gr.Interface(
+        fn=stream_chatbot,
+        inputs=["text", "text", "text"],
+        outputs=["text"],
+    )
+    api_interface.launch(share=False, server_name="127.0.0.1", root_path="/api", server_port=4242)

@@ -26,4 +26,5 @@ shutil.copy(patch_source, patch_destination)
 os.chdir(full_module_path)
 print('opening app...')
 import app
-app.start_interface()
+# app.start_interface()
+app.start_api_interface()
