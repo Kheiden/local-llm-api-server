@@ -16,7 +16,7 @@ dirpath = os.path.join(full_module_path, 'dataset_vector_embedding')
 if os.path.exists(dirpath) and os.path.isdir(dirpath):
   shutil.rmtree(dirpath)
 # copy the local dataset dir to the RTX dataset dir
-dataset_source = os.path.join(os.getcwd(), 'dataset')
+dataset_source = os.getenv('DATASET_DIR')
 dataset_destination = os.path.join(full_module_path, 'dataset')
 shutil.copytree(dataset_source, dataset_destination, dirs_exist_ok=True) 
 # # Copy the ChatWithRTX object oriented patch
