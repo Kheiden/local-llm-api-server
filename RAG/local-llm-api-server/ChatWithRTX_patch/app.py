@@ -210,6 +210,7 @@ def call_llm_streamed(query):
         yield partial_response
 
 def chatbot(query, chat_history, session_id):
+    print('checking chatbot')
     if data_source == "nodataset":
         yield llm.complete(query).text
         return
@@ -268,7 +269,11 @@ def chatbot(query, chat_history, session_id):
         response_txt = llm.complete(query).text
     yield response_txt
 
-def stream_chatbot(query, chat_history, session_id):
+
+def stream_chatbot(query, chat_history, data_dir, refresh_index, session_id):
+    if refresh_index and data_dir != '':
+        print('regenerating index')
+        generate_inferance_engine(data_dir, force_rewrite=True)
     if data_source == "nodataset":
         for response in call_llm_streamed(query):
             yield response
@@ -538,24 +543,13 @@ def start_api_interface():
         Start typing below to see the output.
         """)
         all_inputs = []
-        inp = gr.Textbox(label="Query", placeholder="What is your name?")
-        all_inputs.append(inp)
-        all_inputs.append(gr.Textbox(label="", placeholder=""))
-        all_inputs.append(gr.Textbox(label="Session ID",placeholder="0"))
+        all_inputs.append(gr.Textbox(label="Query", placeholder="What is your name?"))
+        all_inputs.append(gr.Textbox(label="Chat History", placeholder=""))
+        all_inputs.append(gr.Textbox(label="Data Directory", placeholder="dataset"))
+        all_inputs.append(gr.Checkbox(label="Refresh Index", value=False))
+        all_inputs.append(gr.Textbox(label="Session Id", placeholder="0"))
         out = gr.HTML(label="Output")
-        # gr.HTML
         btn = gr.Button("Run")
-        btn.click(fn=stream_chatbot, inputs=inp, outputs=out)
-        # inp.change(stream_chatbot, inp, out)
-    # api_interface = gr.Interface(
-    #     fn=stream_chatbot,
-    #     inputs=["text", "text", "text"],
-    #     outputs=["text"],
-    # )
-    api_interface.launch(share=False, server_name="127.0.0.1", root_path="/api/query", server_port=4242)
-    # api_interface = gr.Interface(
-    #     fn=generate_inferance_engine,
-    #     inputs=["text"],
-    #     outputs=["text"],
-    # )
-    # api_interface.launch(share=False, server_name="127.0.0.1", root_path="/api/generate_embeds", server_port=4242)
+        btn.click(fn=stream_chatbot, inputs=all_inputs, outputs=out)
+
+    api_interface.launch(share=False, server_name="127.0.0.1", root_path="/api", server_port=4242)
