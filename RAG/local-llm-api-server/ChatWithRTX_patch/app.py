@@ -53,6 +53,17 @@ similarity_top_k = None
 data_source = None
 embedded_model = None
 embedded_dimension = None
+trt_engine_path = None
+trt_engine_name = None
+tokenizer_dir_path = None
+data_dir = None
+engine = None
+llm = None
+service_context = None
+embed_model = None
+faiss_storage = None
+
+formatter = TextFormatter()
 
 def read_config(file_name):
     try:
@@ -415,6 +426,21 @@ def handle_regenerate_index(source, path, session_id):
     print("on regenerate index", source, path, session_id)
 
 def load_config():
+    global is_chat_engine
+    global streaming
+    global similarity_top_k
+    global data_source
+    global embedded_model
+    global embedded_dimension
+    global trt_engine_path
+    global trt_engine_name
+    global tokenizer_dir_path
+    global data_dir
+    global engine
+    global llm
+    global service_context
+    global embed_model
+    global faiss_storage
     app_config_file = 'config\\app_config.json'
     model_config_file = 'config\\config.json'
     preference_config_file = 'config\\preferences.json'
@@ -422,7 +448,7 @@ def load_config():
 
     # read the app specific config
     app_config = read_config(app_config_file)
-    # streaming = app_config["streaming"]
+    streaming = app_config["streaming"]
     similarity_top_k = app_config["similarity_top_k"]
     is_chat_engine = app_config["is_chat_engine"]
     # embedded_model = app_config["embedded_model"]
@@ -447,36 +473,35 @@ def load_config():
     data_dir = config["dataset"]["path"] if selected_data_directory == None else selected_data_directory
     return app_config, model_config
 
-app_config, model_config = load_config()
-# create trt_llm engine object
-llm = TrtLlmAPI(
-    model_path=model_config["model_path"],
-    engine_name=model_config["engine"],
-    tokenizer_dir=model_config["tokenizer_path"],
-    temperature=model_config["temperature"],
-    max_new_tokens=model_config["max_new_tokens"],
-    context_window=model_config["max_input_token"],
-    messages_to_prompt=messages_to_prompt,
-    completion_to_prompt=completion_to_prompt,
-    verbose=False
-)
+def start_interface():
+    app_config, model_config = load_config()
+    # create trt_llm engine object
+    llm = TrtLlmAPI(
+        model_path=model_config["model_path"],
+        engine_name=model_config["engine"],
+        tokenizer_dir=model_config["tokenizer_path"],
+        temperature=model_config["temperature"],
+        max_new_tokens=model_config["max_new_tokens"],
+        context_window=model_config["max_input_token"],
+        messages_to_prompt=messages_to_prompt,
+        completion_to_prompt=completion_to_prompt,
+        verbose=False
+    )
 
-# create embeddings model object
-embed_model = HuggingFaceEmbeddings(model_name=app_config['embedded_model'])
-service_context = ServiceContext.from_defaults(llm=llm, embed_model=embed_model,
-                                               context_window=model_config["max_input_token"], chunk_size=512,
-                                               chunk_overlap=200)
-set_global_service_context(service_context)
+    # create embeddings model object
+    embed_model = HuggingFaceEmbeddings(model_name=app_config['embedded_model'])
+    service_context = ServiceContext.from_defaults(llm=llm, embed_model=embed_model,
+                                                context_window=model_config["max_input_token"], chunk_size=512,
+                                                chunk_overlap=200)
+    set_global_service_context(service_context)
 
-formatter = TextFormatter()
-generate_inferance_engine(data_dir)
-interface = MainInterface(chatbot=stream_chatbot if app_config["streaming"] else chatbot, streaming=app_config["streaming"])
-interface.on_shutdown(on_shutdown_handler)
-interface.on_reset_chat(reset_chat_handler)
-interface.on_dataset_path_updated(on_dataset_path_updated_handler)
-interface.on_model_change(on_model_change_handler)
-interface.on_dataset_source_updated(on_dataset_source_change_handler)
-interface.on_regenerate_index(handle_regenerate_index)
-# render the interface
-interface.render()
-print('Complete.')
+    generate_inferance_engine(data_dir)
+    interface = MainInterface(chatbot=stream_chatbot if app_config["streaming"] else chatbot, streaming=app_config["streaming"])
+    interface.on_shutdown(on_shutdown_handler)
+    interface.on_reset_chat(reset_chat_handler)
+    interface.on_dataset_path_updated(on_dataset_path_updated_handler)
+    interface.on_model_change(on_model_change_handler)
+    interface.on_dataset_source_updated(on_dataset_source_change_handler)
+    interface.on_regenerate_index(handle_regenerate_index)
+    # render the interface
+    interface.render()
