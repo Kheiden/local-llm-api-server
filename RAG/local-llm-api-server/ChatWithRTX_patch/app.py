@@ -236,6 +236,7 @@ def chatbot(query, chat_history, session_id, data_dir='dataset', refresh_index=F
     # Find the file with the highest aggregated score
     highest_aggregated_score_file = None
     if file_scores:
+        print(file_scores)
         highest_aggregated_score_file = max(file_scores, key=file_scores.get)
 
     file_links = []
@@ -560,7 +561,7 @@ def start_api_interface():
     # Understand delta between Interface and gr.Blocks
     interface = gr.Interface(concurrency_limit=10, fn=chatbot, inputs=all_inputs, outputs=out)
     interface.queue()
-    interface.launch(share=False, server_name="127.0.0.1", server_port=4242)
+    interface.launch(share=False, server_name="0.0.0.0", server_port=4242)
 
 if __name__ == '__main__':
   start_interface()
