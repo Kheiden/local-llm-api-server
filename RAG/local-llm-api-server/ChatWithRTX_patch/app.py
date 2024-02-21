@@ -213,7 +213,6 @@ def chatbot(query, chat_history, session_id, data_dir='dataset', refresh_index=F
     if refresh_index and data_dir != '':
         print('regenerating index')
         generate_inferance_engine(data_dir, force_rewrite=True)
-    print('checking chatbot')
     if data_source == "nodataset":
         yield llm.complete(query).text
         return
