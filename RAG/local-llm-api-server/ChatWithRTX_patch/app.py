@@ -210,9 +210,12 @@ def call_llm_streamed(query):
         yield partial_response
 
 def chatbot(query, chat_history, session_id, data_dir='dataset', refresh_index=False):
+    logging.info(f"Query received: {query}")
     if refresh_index and data_dir != '':
         print('regenerating index')
         generate_inferance_engine(data_dir, force_rewrite=True)
+    if query == '' or query is None:
+        return ''
     if data_source == "nodataset":
         yield llm.complete(query).text
         return
