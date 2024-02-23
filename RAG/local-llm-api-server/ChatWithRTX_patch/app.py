@@ -210,9 +210,9 @@ def call_llm_streamed(query):
         yield partial_response
 
 def chatbot(query, chat_history, session_id, data_dir='dataset', refresh_index=False):
-    logging.info(f"Query received: {query}")
+    print(f"Query received: {query}")
     if refresh_index and data_dir != '':
-        print('regenerating index')
+        print('Regenerating index')
         generate_inferance_engine(data_dir, force_rewrite=True)
     if query == '' or query is None:
         return ''
@@ -231,12 +231,14 @@ def chatbot(query, chat_history, session_id, data_dir='dataset', refresh_index=F
         metadata = node.metadata
         if 'filename' in metadata:
             file_name = metadata['filename']
+            # print(metadata)
             file_scores[file_name] += node.score
 
     # Find the file with the highest aggregated score
+    # TODO: This solution results in false positives
     highest_aggregated_score_file = None
     if file_scores:
-        print(file_scores)
+        # print(file_scores)
         highest_aggregated_score_file = max(file_scores, key=file_scores.get)
 
     file_links = []
